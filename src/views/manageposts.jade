@@ -1,0 +1,31 @@
+//- Lets you create, modify and remove posts as well as
+//- comments to those posts
+doctype
+html
+	head
+		title NYCDBxBSSA Basic Blog Manage Posts
+	body
+		h1 Welcome to a NYCDBxBSSA basic blog
+		h2 Make a new post
+
+		form(name="newPost" action="/addpost" method="post")
+			input(type="hidden" name="postAuthor" value="1")
+			input(type="text" name="postTitle" style="width: 400px;" placeholder="Title")
+			br
+			input(type="text" name="postBody" style="width: 400px;" placeholder="Text")
+			br
+			button(type="submit" id="submitPost" style="width: 400px;") Submit your post
+
+		h2 Here you can manage the posts
+		ul
+			each post in allPosts
+				a(href="/singlepost/"+post.postID)
+					div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
+					a(href="/removepost/"+post.postID)
+						div xxx Remove this post
+				br
+		h2 Navigation
+		a(href="/manageposts") Manage Posts
+		br
+		a(href="/manageusers") Manage Users
+		br

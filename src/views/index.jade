@@ -1,0 +1,18 @@
+//- Frontpage showing the latest posts and their author
+doctype
+html
+	head
+		title NYCDBxBSSA Basic Blog App
+	body
+		h1 Welcome to a NYCDBxBSSA basic blog
+		h2 Current blog posts:
+		div(id="Posts")
+			each post in allPosts
+				a(href="/singlepost/"+post.postID)
+					div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
+				br
+		h2 Navigation
+		a(href="/manageposts") Manage Posts
+		br
+		a(href="/manageusers") Manage Users
+		br
