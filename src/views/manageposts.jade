@@ -5,11 +5,12 @@ html
 	head
 		title NYCDBxBSSA Basic Blog Manage Posts
 	body
-		h1 Welcome to a NYCDBxBSSA basic blog
+		a(href="/")
+			h1 Welcome to a NYCDBxBSSA basic blog
 		h2 Make a new post
 
 		form(name="newPost" action="/addpost" method="post")
-			input(type="hidden" name="postAuthor" value="1")
+			input(type="hidden" name="postAuthor" value=userid)
 			input(type="text" name="postTitle" style="width: 400px;" placeholder="Title")
 			br
 			input(type="text" name="postBody" style="width: 400px;" placeholder="Text")
@@ -29,3 +30,16 @@ html
 		br
 		a(href="/manageusers") Manage Users
 		br
+		h2 Account
+		div You are currently logged in as:
+		if user != undefined
+			p= user
+			form(name="logout" action="/logout" method="post")
+				button(type="submit" id="logout" style="width: 400px;") Logout
+		else
+			form(name="login" action="/login" method="post")
+				input(type="text" name="username" style="width: 400px;" placeholder="Username")
+				br
+				input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
+				br
+				button(type="submit" id="login" style="width: 400px;") Login

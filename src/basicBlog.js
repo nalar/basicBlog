@@ -3,18 +3,20 @@
 ///////////////////////////////////////////////////////////////
 // Set the several requires
 var express = require('express');
+var session = require('express-session');
 var sequelize = require('sequelize');
 var jade = require('jade');
 var pg = require('pg');
 var bodyParser = require('body-parser');
-//var cookieParser = require('cookie-parser');
-//https://github.com/expressjs/session
 
 ///////////////////////////////////////////////////////////////
 // Settings for express
 app = express();
 app.use(bodyParser.urlencoded({
     extended: true
+}));
+app.use(session({
+    secret: 'basicblogsecret'
 }));
 app.set('views', './src/views');
 app.set('view engine', 'jade');
@@ -58,6 +60,8 @@ var Comment = sequelize.define('comment', {
 app.get('/', function(request, response) {
     // Get all the posts titles and authors
     // and pass them to the renderer
+
+
     Post.findAll().then(function(posts) {
         var data = posts.map(function(post) {
             return {
@@ -68,7 +72,9 @@ app.get('/', function(request, response) {
         })
         allPosts = data.reverse();
         response.render('index', {
-            allPosts: allPosts
+            allPosts: allPosts,
+            user: request.session.username,
+            userid: request.session.userid
         });
     })
 });
@@ -76,6 +82,8 @@ app.get('/', function(request, response) {
 app.get('/manageposts', function(request, response) {
     // Get all the post titles and show them with options to
     // either add a post, remove a post and edit a post
+
+
     Post.findAll().then(function(posts) {
         var data = posts.map(function(post) {
             return {
@@ -86,14 +94,16 @@ app.get('/manageposts', function(request, response) {
         })
         allPosts = data.reverse();
         response.render('manageposts', {
-            allPosts: allPosts
+            allPosts: allPosts,
+            user: request.session.username,
+            userid: request.session.userid
         });
     })
 });
 
 app.get('/manageusers', function(request, response) {
-    // User.name
-    // User.ID
+
+
     User.findAll().then(function(users) {
         var data = users.map(function(user) {
             return {
@@ -104,12 +114,16 @@ app.get('/manageusers', function(request, response) {
         })
         allUsers = data.reverse();
         response.render('manageusers', {
-            allUsers: allUsers
+            allUsers: allUsers,
+            user: request.session.username,
+            userid: request.session.userid
         });
     })
 });
 
 app.get('/singlepost/:postid', function(request, response) {
+
+
     var postID = request.params.postid;
     var row;
     Post.findById(postID).then(function(row) {
@@ -128,7 +142,9 @@ app.get('/singlepost/:postid', function(request, response) {
             response.render('singlepost', {
                 postID: postID,
                 post: row,
-                allComments: allComments
+                allComments: allComments,
+                user: request.session.username,
+                userid: request.session.userid
             });
         });
     });
@@ -137,6 +153,8 @@ app.get('/singlepost/:postid', function(request, response) {
 ///////////////////////////////////////////////////////////////
 // These two should be DELETEs instead of GETs
 app.get('/removepost/:deleteid', function(request, response) {
+
+
     var deleteID = request.params.deleteid;
     // Destroy the given post ID
     Post.destroy({
@@ -149,6 +167,8 @@ app.get('/removepost/:deleteid', function(request, response) {
 });
 
 app.get('/removeuser/:deleteid', function(request, response) {
+
+
     var deleteID = request.params.deleteid;
 
     User.destroy({
@@ -172,7 +192,35 @@ app.get('/updateuser/:userid', function(request, response) {
 
 ///////////////////////////////////////////////////////////////
 // Define the POST routes
+app.post('/login', function(request, response) {
+    User.findAll({
+        where: {
+            name: request.body.username
+        }
+    }).then(function(userData) {
+        if (userData[0].password === request.body.userpass) {
+            request.session.lastPage = 'login';
+            request.session.userid = userData[0].id;
+            request.session.username = userData[0].name;
+            console.log('Succesfully logged in as: ' + userData[0].name);
+            response.redirect('/')
+        } else {
+            console.log('Invalid password')
+            response.redirect('/')
+        }
+    })
+})
+
+app.post('/logout', function(request, response) {
+    request.session.destroy();
+    response.redirect('/');
+});
+
+
 app.post('/addpost', function(request, response) {
+
+    request.session.lastPage = 'addpost';
+
     // Define the several variables that make up the post
     postTitle = request.body.postTitle;
     postBody = request.body.postBody;
@@ -189,6 +237,9 @@ app.post('/addpost', function(request, response) {
 });
 
 app.post('/adduser', function(request, response) {
+
+    request.session.lastPage = 'adduser';
+
     // Define the several variables that make up the user
     userName = request.body.userName;
     userPassword = request.body.userPassword;
@@ -205,6 +256,9 @@ app.post('/adduser', function(request, response) {
 });
 
 app.post('/addcomment', function(request, response) {
+
+    request.session.lastPage = 'addcomment';
+
     // Define the variables that make up the comment
     commentBody = request.body.commentBody;
     commentAuthor = request.body.commentAuthor;
