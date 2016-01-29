@@ -1,1 +1,30 @@
 //- Lets you create, modify and remove users
+doctype
+html
+	head
+		title NYCDBxBSSA Basic Blog Manage Users
+	body
+		h1 Welcome to a NYCDBxBSSA basic blog
+		h2 Manage users
+
+		form(name="addUser" action="/adduser" method="post")
+			input(type="text" name="userName" style="width: 400px;" placeholder="Username")
+			br
+			input(type="text" name="userPassword" style="width: 400px;" placeholder="password")
+			br
+			input(type="text" name="userEmail" style="width: 400px;" placeholder="Email")
+			br
+			button(type="submit" id="submitPost" style="width: 400px;") Add new user
+
+		h2 Here you can manage the posts
+		ul
+			each user in allUsers
+				div(style="font-size: 14pt; font-weight: bold;")= user.name + " " + user.email
+				a(href="/removeuser/"+user.userID)
+					div xxx Remove this user
+				br
+		h2 Navigation
+		a(href="/manageposts") Manage Posts
+		br
+		a(href="/manageusers") Manage Users
+		br

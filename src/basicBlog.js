@@ -67,7 +67,6 @@ app.get('/', function(request, response) {
             }
         })
         allPosts = data.reverse();
-        console.log(allPosts);
         response.render('index', {
             allPosts: allPosts
         });
@@ -95,11 +94,22 @@ app.get('/manageposts', function(request, response) {
 app.get('/manageusers', function(request, response) {
     // User.name
     // User.ID
-    response.render('manageusers');
+    User.findAll().then(function(users) {
+        var data = users.map(function(user) {
+            return {
+                name: user.dataValues.name,
+                email: user.dataValues.email,
+                userID: user.dataValues.id
+            }
+        })
+        allUsers = data.reverse();
+        response.render('manageusers', {
+            allUsers: allUsers
+        });
+    })
 });
 
 app.get('/singlepost/:postid', function(request, response) {
-    // Comment where comment.postID equals postid
     var postID = request.params.postid;
     var row;
     Post.findById(postID).then(function(row) {
@@ -115,9 +125,8 @@ app.get('/singlepost/:postid', function(request, response) {
                 }
             });
             allComments = data.reverse();
-            console.log(data);
             response.render('singlepost', {
-            	postID: postID,
+                postID: postID,
                 post: row,
                 allComments: allComments
             });
@@ -125,6 +134,41 @@ app.get('/singlepost/:postid', function(request, response) {
     });
 });
 
+///////////////////////////////////////////////////////////////
+// These two should be DELETEs instead of GETs
+app.get('/removepost/:deleteid', function(request, response) {
+    var deleteID = request.params.deleteid;
+    // Destroy the given post ID
+    Post.destroy({
+        where: {
+            id: deleteID
+        }
+    }).then(function() {
+        response.redirect('/manageposts')
+    })
+});
+
+app.get('/removeuser/:deleteid', function(request, response) {
+    var deleteID = request.params.deleteid;
+
+    User.destroy({
+        where: {
+            id: deleteID
+        }
+    }).then(function() {
+        response.redirect('/manageusers')
+    })
+});
+
+///////////////////////////////////////////////////////////////
+// These dont work yet
+app.get('/updatepost/:postid', function(request, response) {
+    var postid = request.params.postid;
+});
+
+app.get('/updateuser/:userid', function(request, response) {
+    var deleteID = request.params.userid;
+});
 
 ///////////////////////////////////////////////////////////////
 // Define the POST routes
@@ -140,15 +184,8 @@ app.post('/addpost', function(request, response) {
         body: postBody,
         author: postAuthor
     }).then(function(newpost) {
-        response.redirect('/singlepost/'+newpost.dataValues.id);
-    });    
-});
-
-app.post('/removepost', function(request, response) {
-    // Destroy the given postID
-    Post.destroy();
-    // Redirect to post management
-    response.redirect('/manageposts')
+        response.redirect('/singlepost/' + newpost.dataValues.id);
+    });
 });
 
 app.post('/adduser', function(request, response) {
@@ -162,18 +199,9 @@ app.post('/adduser', function(request, response) {
         name: userName,
         password: userPassword,
         email: userEmail
+    }).then(function() {
+        response.redirect('/manageusers');
     });
-
-    // Redirect to the user management
-    response.redirect('/manageusers');
-});
-
-app.post('/removeuser', function(request, response) {
-    // Destroy the given userID
-    User.destroy()
-
-    // Redirect back to the user management
-    response.redirect('/manageusers');
 });
 
 app.post('/addcomment', function(request, response) {
@@ -187,9 +215,9 @@ app.post('/addcomment', function(request, response) {
         body: commentBody,
         author: commentAuthor,
         postid: commentPostID
-    }).then(function(){
-    	// Redirect to the singlepost page
-    response.redirect('/singlepost/' + commentPostID);
+    }).then(function() {
+        // Redirect to the singlepost page
+        response.redirect('/singlepost/' + commentPostID);
     });
 
 });
