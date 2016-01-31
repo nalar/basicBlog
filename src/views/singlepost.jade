@@ -1,30 +1,52 @@
-//- Lets you see a single post and add comments to it
-doctype
+#doctype
 html
 	head
 		title NYCDBxBSSA Basic Blog Single Page
+		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
-		h1 Welcome to a NYCDBxBSSA basic blog
-		h2 Current blog post:
-		div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
-		br
-		div(style="font-size: 12pt;")= post.body
-		br
-		h3 Comments
-
-		form(name="newComment" action="/addcomment" method="post")
-			input(type="hidden" name="commentPostID" value=postID)
-			input(type="text" name="commentAuthor" style="width: 400px;" placeholder="Author")
-			br
-			input(type="text" name="commentBody" style="width: 400px;" placeholder="Comment")
-			br
-			button(type="submit" id="submitComment" style="width: 400px;") Submit your comment
-
-		div(id="comments" style="font-size: 10pt")
-			each comment in allComments
-				li= comment.body + " by " + comment.author
-		h2 Navigation
-		a(href="/manageposts") Manage Posts
-		br
-		a(href="/manageusers") Manage Users
-		br
+		
+		div(id="header")
+			a(href="/")
+				h1 Welcome to a NYCDBxBSSA basic blog
+	
+		div(id="main")
+			
+			div(id="singlepost")
+				h2(id="singleposttitle")= post.title
+				
+				div(id="singlepostauthor")= post.authorname
+				
+				div(id="singlepostbody")= post.body
+			
+			div(id="comments")
+				
+				div(id="comment")
+					h3 Comments
+					each comment in allComments
+						div(class="comment")= comment.body + " - " + comment.author
+				
+				div(id="commentform")
+					h3 Add a comment
+					form(name="newComment" action="/addcomment" method="post")
+						input(type="hidden" name="commentPostID" value=postID)
+						input(type="text" name="commentAuthor" style="width: 100%;" placeholder="Author")
+						br
+						input(type="text" name="commentBody" style="width: 100%;" placeholder="Comment")
+						br
+						button(type="submit" id="submitComment" style="width: 100%;") Submit your comment
+		
+		div(id="footer")
+				
+				div(id="accountinformation")
+					h2 Account
+					p You are currently logged in as:
+					p= user
+					form(name="logout" action="/logout" method="post")
+						button(type="submit" id="logout" style="width: 350px;") Logout
+				
+				div(id="navigation")
+					h2 Navigation
+					div(class="navigationlink")
+						a(href="/manageposts") Manage Posts
+					div(class="navigationlink")
+						a(href="/manageusers") Manage Users

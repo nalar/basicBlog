@@ -1,18 +1,60 @@
-//- Frontpage showing the latest posts and their author
 doctype
 html
 	head
 		title NYCDBxBSSA Basic Blog App
+		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
-		h1 Welcome to a NYCDBxBSSA basic blog
-		h2 Current blog posts:
-		div(id="Posts")
-			each post in allPosts
-				a(href="/singlepost/"+post.postID)
-					div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
-				br
-		h2 Navigation
-		a(href="/manageposts") Manage Posts
-		br
-		a(href="/manageusers") Manage Users
-		br
+		
+		div(id="header")
+			a(href="/")
+				h1 Welcome to a NYCDBxBSSA basic blog
+
+	if user != undefined
+		div(id="main")
+			div(id="posts")
+				h2 Current blog posts:
+				each post in allPosts
+					div(class="post")
+						a(href="/singlepost/"+post.postID)= post.title + " - " + post.authorname
+
+		div(id="footer")
+			
+			div(id="accountinformation")
+				h2 Account
+				p You are currently logged in as:
+				p= user
+				form(name="logout" action="/logout" method="post")
+					button(type="submit" id="logout" style="width: 350px;") Logout
+
+			div(id="navigation")
+				h2 Navigation
+				div(class="navigationlink")
+					a(href="/manageposts") Manage Posts
+				div(class="navigationlink")
+					a(href="/manageusers") Manage Users
+	else
+		div(id="main")
+			div(id="landing")
+				h3 Please login or register to view posts
+
+		div(id="footer")
+			div(id="loginform")
+				h2 Login
+				form(name="login" action="/login" method="post")
+					input(type="text" name="username" placeholder="Username")
+					br
+					input(type="password" name="userpass" placeholder="Password")
+					br
+					button(type="submit" id="login" ) Login
+					div(id="adduserForm")
+
+			div(id="registerform")
+				h2 Register
+				form(name="addUser" action="/adduser" method="post")
+					input(type="text" name="userName" placeholder="Username")
+					br
+					input(type="text" name="userPassword" placeholder="password")
+					br
+					input(type="text" name="userEmail" placeholder="Email")
+					br
+					button(type="submit" id="submitPost") Add new user

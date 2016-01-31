@@ -3,12 +3,11 @@
 ///////////////////////////////////////////////////////////////
 // Set the several requires
 var express = require('express');
+var session = require('express-session');
 var sequelize = require('sequelize');
 var jade = require('jade');
 var pg = require('pg');
 var bodyParser = require('body-parser');
-//var cookieParser = require('cookie-parser');
-//https://github.com/expressjs/session
 
 ///////////////////////////////////////////////////////////////
 // Settings for express
@@ -16,6 +15,12 @@ app = express();
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(session({
+    secret: 'basicblogsecret',
+    resave: true,
+    saveUninitialized: false
+}));
+app.use(express.static(__dirname + '/views'));
 app.set('views', './src/views');
 app.set('view engine', 'jade');
 
@@ -58,6 +63,7 @@ var Comment = sequelize.define('comment', {
 app.get('/', function(request, response) {
     // Get all the posts titles and authors
     // and pass them to the renderer
+
     Post.findAll().then(function(posts) {
         var data = posts.map(function(post) {
             return {
@@ -67,88 +73,155 @@ app.get('/', function(request, response) {
             }
         })
         allPosts = data.reverse();
+    }).then(User.findAll().then(function(users) {
+        var data = users.map(function(user) {
+            return {
+                name: user.dataValues.name,
+                userID: user.dataValues.id
+            }
+        })
+        allUsers = data;
+    }).then(function() {
+        for (post in allPosts) {
+            for (user in allUsers) {
+                if (allPosts[post].author === allUsers[user].userID) {
+                    allPosts[post].authorname = allUsers[user].name
+                }
+            }
+        }
+    }).then(function() {
         response.render('index', {
-            allPosts: allPosts
+            allPosts: allPosts,
+            user: request.session.username,
+            userid: request.session.userid
         });
-    })
+    }));
+});
+
+app.get('/singlepost/:postid', function(request, response) {
+    if (request.session.userid != undefined) {
+        var postID = request.params.postid;
+        Post.findById(postID)
+            .then(function(post) {
+                User.findAll().then(function(users) {
+                    var data = users.map(function(user) {
+                        return {
+                            name: user.dataValues.name,
+                            userID: user.dataValues.id
+                        }
+                    })
+                    allUsers = data;
+                })
+                    .then(function() {
+                        for (user in allUsers) {
+                            if (allUsers[user].userID === post.author) {
+                                post.authorname = allUsers[user].name;
+                            }
+                        }
+                    })
+                    .then(Comment.findAll({
+                            where: {
+                                postid: postID
+                            }
+                        })
+                        .then(function(comments) {
+                            var data = comments.map(function(comment) {
+                                return {
+                                    body: comment.dataValues.body,
+                                    author: comment.dataValues.author
+                                }
+                            });
+                            allComments = data.reverse();
+                        })
+                        .then(function() {
+                            response.render('singlepost', {
+                                postID: postID,
+                                post: post,
+                                allComments: allComments,
+                                user: request.session.username,
+                                userid: request.session.userid
+                            });
+                        }));
+            })
+    } else {
+        response.redirect('/');
+    }
 });
 
 app.get('/manageposts', function(request, response) {
     // Get all the post titles and show them with options to
     // either add a post, remove a post and edit a post
-    Post.findAll().then(function(posts) {
-        var data = posts.map(function(post) {
-            return {
-                title: post.dataValues.title,
-                author: post.dataValues.author,
-                postID: post.dataValues.id
+    if (request.session.userid != undefined) {
+        Post.findAll({
+            where: {
+                author: request.session.userid
             }
+        }).then(function(posts) {
+            var data = posts.map(function(post) {
+                return {
+                    title: post.dataValues.title,
+                    author: post.dataValues.author,
+                    postID: post.dataValues.id
+                }
+            })
+            allPosts = data.reverse();
+            response.render('manageposts', {
+                allPosts: allPosts,
+                user: request.session.username,
+                userid: request.session.userid
+            });
         })
-        allPosts = data.reverse();
-        response.render('manageposts', {
-            allPosts: allPosts
-        });
-    })
+    } else {
+        response.redirect('/');
+    }
 });
 
 app.get('/manageusers', function(request, response) {
-    // User.name
-    // User.ID
-    User.findAll().then(function(users) {
-        var data = users.map(function(user) {
-            return {
-                name: user.dataValues.name,
-                email: user.dataValues.email,
-                userID: user.dataValues.id
-            }
-        })
-        allUsers = data.reverse();
-        response.render('manageusers', {
-            allUsers: allUsers
-        });
-    })
-});
-
-app.get('/singlepost/:postid', function(request, response) {
-    var postID = request.params.postid;
-    var row;
-    Post.findById(postID).then(function(row) {
-        Comment.findAll({
-            where: {
-                postid: postID
-            }
-        }).then(function(comments) {
-            var data = comments.map(function(comment) {
+    if (request.session.userid != undefined) {
+        User.findAll().then(function(users) {
+            var data = users.map(function(user) {
                 return {
-                    body: comment.dataValues.body,
-                    author: comment.dataValues.author
+                    name: user.dataValues.name,
+                    email: user.dataValues.email,
+                    userID: user.dataValues.id
                 }
+            })
+            allUsers = data.reverse();
+            response.render('manageusers', {
+                allUsers: allUsers,
+                user: request.session.username,
+                userid: request.session.userid
             });
-            allComments = data.reverse();
-            response.render('singlepost', {
-                postID: postID,
-                post: row,
-                allComments: allComments
-            });
-        });
-    });
+        })
+    } else {
+        response.redirect('/');
+    }
 });
 
 ///////////////////////////////////////////////////////////////
 // These two should be DELETEs instead of GETs
 app.get('/removepost/:deleteid', function(request, response) {
+
     var deleteID = request.params.deleteid;
     // Destroy the given post ID
-    Post.destroy({
+    Comment.destroy({
         where: {
-            id: deleteID
+            postid: deleteID
         }
+    }).then(function() {
+        Post.destroy({
+            where: {
+                id: deleteID
+            }
+        })
     }).then(function() {
         response.redirect('/manageposts')
     })
 });
 
 app.get('/removeuser/:deleteid', function(request, response) {
+
+
     var deleteID = request.params.deleteid;
 
     User.destroy({
@@ -172,7 +245,35 @@ app.get('/updateuser/:userid', function(request, response) {
 
 ///////////////////////////////////////////////////////////////
 // Define the POST routes
+app.post('/login', function(request, response) {
+    User.findAll({
+        where: {
+            name: request.body.username
+        }
+    }).then(function(userData) {
+        if (userData[0].password === request.body.userpass) {
+            request.session.lastPage = 'login';
+            request.session.userid = userData[0].id;
+            request.session.username = userData[0].name;
+            console.log('Succesfully logged in as: ' + userData[0].name);
+            response.redirect('/')
+        } else {
+            console.log('Invalid password')
+            response.redirect('/')
+        }
+    })
+})
+
+app.post('/logout', function(request, response) {
+    request.session.destroy();
+    response.redirect('/');
+});
+
+
 app.post('/addpost', function(request, response) {
+
+    request.session.lastPage = 'addpost';
+
     // Define the several variables that make up the post
     postTitle = request.body.postTitle;
     postBody = request.body.postBody;
@@ -189,6 +290,9 @@ app.post('/addpost', function(request, response) {
 });
 
 app.post('/adduser', function(request, response) {
+
+    request.session.lastPage = 'adduser';
+
     // Define the several variables that make up the user
     userName = request.body.userName;
     userPassword = request.body.userPassword;
@@ -205,6 +309,9 @@ app.post('/adduser', function(request, response) {
 });
 
 app.post('/addcomment', function(request, response) {
+
+    request.session.lastPage = 'addcomment';
+
     // Define the variables that make up the comment
     commentBody = request.body.commentBody;
     commentAuthor = request.body.commentAuthor;
