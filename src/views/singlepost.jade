@@ -1,56 +1,52 @@
-//- Lets you see a single post and add comments to it
-doctype
+#doctype
 html
 	head
 		title NYCDBxBSSA Basic Blog Single Page
+		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
 		
 		div(id="header")
 			a(href="/")
 				h1 Welcome to a NYCDBxBSSA basic blog
-		
+	
 		div(id="main")
 			
 			div(id="singlepost")
-				h2 Current blog post:
-				div(id="singlepostTitle")= post.title + " by author " + post.author
-				br
-				div(id="singlepostBody")= post.body
+				h2(id="singleposttitle")= post.title
+				
+				div(id="singlepostauthor")= post.authorname
+				
+				div(id="singlepostbody")= post.body
 			
 			div(id="comments")
-				h3 Comments
-				form(name="newComment" action="/addcomment" method="post")
-					input(type="hidden" name="commentPostID" value=postID)
-					input(type="text" name="commentAuthor" style="width: 400px;" placeholder="Author")
-					br
-					input(type="text" name="commentBody" style="width: 400px;" placeholder="Comment")
-					br
-					button(type="submit" id="submitComment" style="width: 400px;") Submit your comment
-
-				div(id="comments" style="font-size: 10pt")
+				
+				div(id="comment")
+					h3 Comments
 					each comment in allComments
-						li= comment.body + " by " + comment.author
+						div(class="comment")= comment.body + " - " + comment.author
+				
+				div(id="commentform")
+					h3 Add a comment
+					form(name="newComment" action="/addcomment" method="post")
+						input(type="hidden" name="commentPostID" value=postID)
+						input(type="text" name="commentAuthor" style="width: 100%;" placeholder="Author")
+						br
+						input(type="text" name="commentBody" style="width: 100%;" placeholder="Comment")
+						br
+						button(type="submit" id="submitComment" style="width: 100%;") Submit your comment
 		
-		div(id="footer")			
-			if user != undefined
+		div(id="footer")
+				
 				div(id="accountinformation")
 					h2 Account
 					p You are currently logged in as:
 					p= user
 					form(name="logout" action="/logout" method="post")
-						button(type="submit" id="logout" style="width: 400px;") Logout
+						button(type="submit" id="logout" style="width: 350px;") Logout
 				
 				div(id="navigation")
 					h2 Navigation
-					a(href="/manageposts") Manage Posts
-					br
-					a(href="/manageusers") Manage Users
-			else
-				div(id="loginform")
-					h2 Login
-					form(name="login" action="/login" method="post")
-						input(type="text" name="username" style="width: 400px;" placeholder="Username")
-						br
-						input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
-						br
-						button(type="submit" id="login" style="width: 400px;") Login
+					div(class="navigationlink")
+						a(href="/manageposts") Manage Posts
+					div(class="navigationlink")
+						a(href="/manageusers") Manage Users

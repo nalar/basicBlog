@@ -1,55 +1,48 @@
-//- Lets you create, modify and remove posts as well as
-//- comments to those posts
 doctype
 html
 	head
 		title NYCDBxBSSA Basic Blog Manage Posts
+		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
 
 		div(id="header")
 			a(href="/")
 				h1 Welcome to a NYCDBxBSSA basic blog
-		
-		div(id="addpostForm")
-			h2 Make a new post
-			form(name="addPost" action="/addpost" method="post")
-				input(type="hidden" name="postAuthor" value=userid)
-				input(type="text" name="postTitle" style="width: 400px;" placeholder="Title")
-				br
-				input(type="text" name="postBody" style="width: 400px;" placeholder="Text")
-				br
-				button(type="submit" id="submitPost" style="width: 400px;") Submit your post
-		
-		div(id="manageposts")
-			h2 Here you can manage the posts
-			ul
-				each post in allPosts
-					a(href="/singlepost/"+post.postID)
-						div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
-						a(href="/removepost/"+post.postID)
-							div xxx Remove this post
-					br
+	
+		div(id="main")
 
-		div(id="footer")
-			if user != undefined
-				div(id="accountinformation")
-					h2 Account
-					p You are currently logged in as:
-					p= user
-					form(name="logout" action="/logout" method="post")
-						button(type="submit" id="logout" style="width: 400px;") Logout
-				
-				div(id="navigation")
-					h2 Navigation
-					a(href="/manageposts") Manage Posts
+			div(id="manageposts")
+				h2 Your posts
+				each post in allPosts
+					div(class="managepost")
+						div(class="managetitle")
+							a(href="/singlepost/"+post.postID)= post.title
+						div(class="removepost")
+							a(href="/removepost/"+post.postID) X Remove Post
+			
+			div(id="addpostform")
+				h2 Make a new post
+				form(name="addPost" action="/addpost" method="post")
+					input(type="hidden" name="postAuthor" value=userid)
+					input(type="text" id="addformtitle" name="postTitle" placeholder="Title")
 					br
+					textarea(id="addformbody" name="postBody" placeholder="Enter your blog post here!")
+					br
+					button(type="submit" id="submitPost") Submit your post
+			
+		
+		div(id="footer")
+			
+			div(id="accountinformation")
+				h2 Account
+				p You are currently logged in as:
+				p= user
+				form(name="logout" action="/logout" method="post")
+					button(type="submit" id="logout" style="width: 350px;") Logout
+			
+			div(id="navigation")
+				h2 Navigation
+				div(class="navigationlink")
+					a(href="/manageposts") Manage Posts
+				div(class="navigationlink")
 					a(href="/manageusers") Manage Users
-			else
-				div(id="loginform")
-					h2 Login
-					form(name="login" action="/login" method="post")
-						input(type="text" name="username" style="width: 400px;" placeholder="Username")
-						br
-						input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
-						br
-						button(type="submit" id="login" style="width: 400px;") Login

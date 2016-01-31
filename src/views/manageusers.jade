@@ -1,54 +1,46 @@
-//- Lets you create, modify and remove users
 doctype
 html
 	head
 		title NYCDBxBSSA Basic Blog Manage Users
+		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
-
 		div(id="header")
 			a(href="/")
 				h1 Welcome to a NYCDBxBSSA basic blog
-			h2 Manage users
-		
-		div(id="adduserForm")
-			form(name="addUser" action="/adduser" method="post")
-				input(type="text" name="userName" style="width: 400px;" placeholder="Username")
-				br
-				input(type="text" name="userPassword" style="width: 400px;" placeholder="password")
-				br
-				input(type="text" name="userEmail" style="width: 400px;" placeholder="Email")
-				br
-				button(type="submit" id="submitPost" style="width: 400px;") Add new user
-		
-		div(id="manageusers")
-			h2 Here you can manage the user
-			ul
-				each user in allUsers
-					div(style="font-size: 14pt; font-weight: bold;")= user.name + " " + user.email
-					a(href="/removeuser/"+user.userID)
-						div xxx Remove this user
+	
+		div(id="main")
+			div(id="adduserform")
+				h2 Add a new user
+				form(name="addUser" action="/adduser" method="post")
+					input(type="text" name="userName" style="width: 350px;" placeholder="Username")
 					br
-
-		div(id="footer")			
-			if user != undefined
-				div(id="accountinformation")
-					h2 Account
-					p You are currently logged in as:
-					p= user
-					form(name="logout" action="/logout" method="post")
-						button(type="submit" id="logout" style="width: 400px;") Logout
-				
-				div(id="navigation")
-					h2 Navigation
+					input(type="text" name="userPassword" style="width: 350px;" placeholder="password")
+					br
+					input(type="text" name="userEmail" style="width: 350px;" placeholder="Email")
+					br
+					button(type="submit" id="submitPost" style="width: 350px;") Add new user
+			
+			div(id="manageusers")
+				h2 Here you can manage the users
+				ul
+					each user in allUsers
+						div(style="font-size: 14pt; font-weight: bold;")= user.name + " " + user.email
+						a(href="/removeuser/"+user.userID)
+							div xxx Remove this user
+						br
+		
+		div(id="footer")
+			
+			div(id="accountinformation")
+				h2 Account
+				p You are currently logged in as:
+				p= user
+				form(name="logout" action="/logout" method="post")
+					button(type="submit" id="logout" style="width: 350px;") Logout
+			
+			div(id="navigation")
+				h2 Navigation
+				div(class="navigationlink")
 					a(href="/manageposts") Manage Posts
-					br
+				div(class="navigationlink")
 					a(href="/manageusers") Manage Users
-			else
-				div(id="loginform")
-					h2 Login
-					form(name="login" action="/login" method="post")
-						input(type="text" name="username" style="width: 400px;" placeholder="Username")
-						br
-						input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
-						br
-						button(type="submit" id="login" style="width: 400px;") Login

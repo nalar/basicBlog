@@ -16,8 +16,11 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(session({
-    secret: 'basicblogsecret'
+    secret: 'basicblogsecret',
+    resave: true,
+    saveUninitialized: false
 }));
+app.use(express.static(__dirname + '/views'));
 app.set('views', './src/views');
 app.set('view engine', 'jade');
 
@@ -61,7 +64,6 @@ app.get('/', function(request, response) {
     // Get all the posts titles and authors
     // and pass them to the renderer
 
-
     Post.findAll().then(function(posts) {
         var data = posts.map(function(post) {
             return {
@@ -71,81 +73,129 @@ app.get('/', function(request, response) {
             }
         })
         allPosts = data.reverse();
+    }).then(User.findAll().then(function(users) {
+        var data = users.map(function(user) {
+            return {
+                name: user.dataValues.name,
+                userID: user.dataValues.id
+            }
+        })
+        allUsers = data;
+    }).then(function() {
+        for (post in allPosts) {
+            for (user in allUsers) {
+                if (allPosts[post].author === allUsers[user].userID) {
+                    allPosts[post].authorname = allUsers[user].name
+                }
+            }
+        }
+    }).then(function() {
         response.render('index', {
             allPosts: allPosts,
             user: request.session.username,
             userid: request.session.userid
         });
-    })
+    }));
+});
+
+app.get('/singlepost/:postid', function(request, response) {
+    if (request.session.userid != undefined) {
+        var postID = request.params.postid;
+        Post.findById(postID)
+            .then(function(post) {
+                User.findAll().then(function(users) {
+                    var data = users.map(function(user) {
+                        return {
+                            name: user.dataValues.name,
+                            userID: user.dataValues.id
+                        }
+                    })
+                    allUsers = data;
+                })
+                    .then(function() {
+                        for (user in allUsers) {
+                            if (allUsers[user].userID === post.author) {
+                                post.authorname = allUsers[user].name;
+                            }
+                        }
+                    })
+                    .then(Comment.findAll({
+                            where: {
+                                postid: postID
+                            }
+                        })
+                        .then(function(comments) {
+                            var data = comments.map(function(comment) {
+                                return {
+                                    body: comment.dataValues.body,
+                                    author: comment.dataValues.author
+                                }
+                            });
+                            allComments = data.reverse();
+                        })
+                        .then(function() {
+                            response.render('singlepost', {
+                                postID: postID,
+                                post: post,
+                                allComments: allComments,
+                                user: request.session.username,
+                                userid: request.session.userid
+                            });
+                        }));
+            })
+    } else {
+        response.redirect('/');
+    }
 });
 
 app.get('/manageposts', function(request, response) {
     // Get all the post titles and show them with options to
     // either add a post, remove a post and edit a post
-
-
-    Post.findAll({where: {author: request.session.userid}}).then(function(posts) {
-        var data = posts.map(function(post) {
-            return {
-                title: post.dataValues.title,
-                author: post.dataValues.author,
-                postID: post.dataValues.id
-            }
-        })
-        allPosts = data.reverse();
-        response.render('manageposts', {
-            allPosts: allPosts,
-            user: request.session.username,
-            userid: request.session.userid
-        });
-    })
-});
-
-app.get('/manageusers', function(request, response) {
-
-    User.findAll().then(function(users) {
-        var data = users.map(function(user) {
-            return {
-                name: user.dataValues.name,
-                email: user.dataValues.email,
-                userID: user.dataValues.id
-            }
-        })
-        allUsers = data.reverse();
-        response.render('manageusers', {
-            allUsers: allUsers,
-            user: request.session.username,
-            userid: request.session.userid
-        });
-    })
-});
-
-app.get('/singlepost/:postid', function(request, response) {
-
-    var postID = request.params.postid;
-    var row;
-    Post.findById(postID).then(function(row) {
-        Comment.findAll({
+    if (request.session.userid != undefined) {
+        Post.findAll({
             where: {
-                postid: postID
+                author: request.session.userid
             }
-        }).then(function(comments) {
-            var data = comments.map(function(comment) {
+        }).then(function(posts) {
+            var data = posts.map(function(post) {
                 return {
-                    body: comment.dataValues.body,
-                    author: comment.dataValues.author
+                    title: post.dataValues.title,
+                    author: post.dataValues.author,
+                    postID: post.dataValues.id
                 }
-            });
-            allComments = data.reverse();
-            response.render('singlepost', {
-                postID: postID,
-                post: row,
-                allComments: allComments,
+            })
+            allPosts = data.reverse();
+            response.render('manageposts', {
+                allPosts: allPosts,
                 user: request.session.username,
                 userid: request.session.userid
             });
-        });
-    });
+        })
+    } else {
+        response.redirect('/');
+    }
+});
+
+app.get('/manageusers', function(request, response) {
+    if (request.session.userid != undefined) {
+        User.findAll().then(function(users) {
+            var data = users.map(function(user) {
+                return {
+                    name: user.dataValues.name,
+                    email: user.dataValues.email,
+                    userID: user.dataValues.id
+                }
+            })
+            allUsers = data.reverse();
+            response.render('manageusers', {
+                allUsers: allUsers,
+                user: request.session.username,
+                userid: request.session.userid
+            });
+        })
+    } else {
+        response.redirect('/');
+    }
 });
 
 ///////////////////////////////////////////////////////////////
@@ -154,10 +204,16 @@ app.get('/removepost/:deleteid', function(request, response) {
 
     var deleteID = request.params.deleteid;
     // Destroy the given post ID
-    Post.destroy({
+    Comment.destroy({
         where: {
-            id: deleteID
+            postid: deleteID
         }
+    }).then(function() {
+        Post.destroy({
+            where: {
+                id: deleteID
+            }
+        })
     }).then(function() {
         response.redirect('/manageposts')
     })
