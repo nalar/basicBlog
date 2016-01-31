@@ -4,41 +4,53 @@ html
 	head
 		title NYCDBxBSSA Basic Blog Single Page
 	body
-		a(href="/")
-			h1 Welcome to a NYCDBxBSSA basic blog
-		h2 Current blog post:
-		div(style="font-size: 14pt; font-weight: bold;")= post.title + " by author " + post.author
-		br
-		div(style="font-size: 12pt;")= post.body
-		br
-		h3 Comments
-
-		form(name="newComment" action="/addcomment" method="post")
-			input(type="hidden" name="commentPostID" value=postID)
-			input(type="text" name="commentAuthor" style="width: 400px;" placeholder="Author")
-			br
-			input(type="text" name="commentBody" style="width: 400px;" placeholder="Comment")
-			br
-			button(type="submit" id="submitComment" style="width: 400px;") Submit your comment
-
-		div(id="comments" style="font-size: 10pt")
-			each comment in allComments
-				li= comment.body + " by " + comment.author
-		h2 Navigation
-		a(href="/manageposts") Manage Posts
-		br
-		a(href="/manageusers") Manage Users
-		br
-		h2 Account
-		div You are currently logged in as:
-		if user != undefined
-			p= user
-			form(name="logout" action="/logout" method="post")
-				button(type="submit" id="logout" style="width: 400px;") Logout
-		else
-			form(name="login" action="/login" method="post")
-				input(type="text" name="username" style="width: 400px;" placeholder="Username")
+		
+		div(id="header")
+			a(href="/")
+				h1 Welcome to a NYCDBxBSSA basic blog
+		
+		div(id="main")
+			
+			div(id="singlepost")
+				h2 Current blog post:
+				div(id="singlepostTitle")= post.title + " by author " + post.author
 				br
-				input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
-				br
-				button(type="submit" id="login" style="width: 400px;") Login
+				div(id="singlepostBody")= post.body
+			
+			div(id="comments")
+				h3 Comments
+				form(name="newComment" action="/addcomment" method="post")
+					input(type="hidden" name="commentPostID" value=postID)
+					input(type="text" name="commentAuthor" style="width: 400px;" placeholder="Author")
+					br
+					input(type="text" name="commentBody" style="width: 400px;" placeholder="Comment")
+					br
+					button(type="submit" id="submitComment" style="width: 400px;") Submit your comment
+
+				div(id="comments" style="font-size: 10pt")
+					each comment in allComments
+						li= comment.body + " by " + comment.author
+		
+		div(id="footer")			
+			if user != undefined
+				div(id="accountinformation")
+					h2 Account
+					p You are currently logged in as:
+					p= user
+					form(name="logout" action="/logout" method="post")
+						button(type="submit" id="logout" style="width: 400px;") Logout
+				
+				div(id="navigation")
+					h2 Navigation
+					a(href="/manageposts") Manage Posts
+					br
+					a(href="/manageusers") Manage Users
+			else
+				div(id="loginform")
+					h2 Login
+					form(name="login" action="/login" method="post")
+						input(type="text" name="username" style="width: 400px;" placeholder="Username")
+						br
+						input(type="password" name="userpass" style="width: 400px;" placeholder="Password")
+						br
+						button(type="submit" id="login" style="width: 400px;") Login

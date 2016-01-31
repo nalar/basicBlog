@@ -84,7 +84,7 @@ app.get('/manageposts', function(request, response) {
     // either add a post, remove a post and edit a post
 
 
-    Post.findAll().then(function(posts) {
+    Post.findAll({where: {author: request.session.userid}}).then(function(posts) {
         var data = posts.map(function(post) {
             return {
                 title: post.dataValues.title,
@@ -102,7 +102,6 @@ app.get('/manageposts', function(request, response) {
 });
 
 app.get('/manageusers', function(request, response) {
-
 
     User.findAll().then(function(users) {
         var data = users.map(function(user) {
@@ -122,7 +121,6 @@ app.get('/manageusers', function(request, response) {
 });
 
 app.get('/singlepost/:postid', function(request, response) {
-
 
     var postID = request.params.postid;
     var row;
@@ -153,7 +151,6 @@ app.get('/singlepost/:postid', function(request, response) {
 ///////////////////////////////////////////////////////////////
 // These two should be DELETEs instead of GETs
 app.get('/removepost/:deleteid', function(request, response) {
-
 
     var deleteID = request.params.deleteid;
     // Destroy the given post ID
