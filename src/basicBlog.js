@@ -176,6 +176,25 @@ app.get('/manageposts', function(request, response) {
     }
 });
 
+app.get('/editpost/:postid', function(request, response) {
+    var postid = request.params.postid;
+    if (request.session.userid != undefined) {
+        Post.findById(postid).then(function(post) {
+            if (request.session.userid === post.author) {
+                response.render('editpost', {
+                    post: post,
+                    user: request.session.username,
+                    userid: request.session.userid
+                })
+            } else {
+                response.render('manageposts')
+            }
+        })
+    } else {
+        response.redirect('index')
+    }
+});
+
 app.get('/manageusers', function(request, response) {
     if (request.session.userid != undefined) {
         User.findAll().then(function(users) {
@@ -201,45 +220,65 @@ app.get('/manageusers', function(request, response) {
 ///////////////////////////////////////////////////////////////
 // These two should be DELETEs instead of GETs
 app.get('/removepost/:deleteid', function(request, response) {
-
     var deleteID = request.params.deleteid;
     // Destroy the given post ID
-    Comment.destroy({
-        where: {
-            postid: deleteID
+    Post.findById(deleteID).then(function(post) {
+        if (post.author === request.session.userid || request.session.userid === 1) {
+            Comment.destroy({
+                where: {
+                    postid: deleteID
+                }
+            }).then(function() {
+                Post.destroy({
+                    where: {
+                        id: deleteID
+                    }
+                })
+            }).then(function() {
+                response.redirect('/manageposts')
+            })
+        } else {
+            console.log('Not the original author of the post!')
+            response.redirect('/manageposts')
         }
-    }).then(function() {
-        Post.destroy({
-            where: {
-                id: deleteID
-            }
-        })
-    }).then(function() {
-        response.redirect('/manageposts')
     })
 });
 
 app.get('/removeuser/:deleteid', function(request, response) {
 
-
     var deleteID = request.params.deleteid;
-
-    User.destroy({
-        where: {
-            id: deleteID
-        }
-    }).then(function() {
+    if (deleteID === request.session.userid || request.session.userid === 1) {
+        User.destroy({
+            where: {
+                id: deleteID
+            }
+        }).then(function() {
+            response.redirect('/manageusers')
+        })
+    } else {
+        console.log('Not allowed')
         response.redirect('/manageusers')
-    })
+    }
+
 });
 
 ///////////////////////////////////////////////////////////////
 // These dont work yet
-app.get('/updatepost/:postid', function(request, response) {
-    var postid = request.params.postid;
+app.post('/editpost/', function(request, response) {
+    Post.findById(request.body.postID).then(function(post) {
+            if (post.author === request.session.userid) {
+                post.updateAttributes({
+                        title: request.body.postTitle,
+                        body: request.body.postBody,
+                        author: request.session.userid
+            }).then(
+                response.redirect('/singlepost/'+request.body.postID)
+            )
+        }
+    })
 });
 
-app.get('/updateuser/:userid', function(request, response) {
+app.get('/edituser/:userid', function(request, response) {
     var deleteID = request.params.userid;
 });
 

@@ -229,6 +229,27 @@
 	height: 300px;
 }
 
+/* Edit Posts - editpost.jade */
+
+#editpostform{
+	display: inline-block;
+	width: 65%;
+	padding: 0px 50px 10px 50px;
+	vertical-align: top;
+}
+
+#editformtitle{
+	width: 40%;
+	font-size: 14pt;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+#editformbody{
+	width: 100%;
+	height: 300px;
+}
+
 /* Manage Users - manageusers.jade*/
 
 #adduserform{
@@ -250,7 +271,7 @@
 
 #manageusers{
 	display: inline-block;
-	width: 45%;
+	width: 40%;
 	padding: 0px 0px 10px 50px;
 }
 

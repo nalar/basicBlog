@@ -1,7 +1,7 @@
 doctype
 html
 	head
-		title Manage Your Posts - NYCDBxBSSA Basic Blog
+		title Edit Post - NYCDBxBSSA Basic Blog
 		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
 
@@ -16,19 +16,19 @@ html
 				each post in allPosts
 					div(class="managepost")
 						div(class="managetitle")
-							a(href="/editpost/"+post.postID)= post.title
+							a(href="/singlepost/"+post.postID)= post.title
 						div(class="removepost")
 							a(href="/removepost/"+post.postID) X Remove Post
 			
-			div(id="addpostform")
-				h2 Make a new post
-				form(name="addPost" action="/addpost" method="post")
-					input(type="hidden" name="postAuthor" value=userid)
-					input(type="text" id="addformtitle" name="postTitle" placeholder="Title")
+			div(id="editpostform")
+				h2 Edit your post
+				form(name="editPost" action="/editpost" method="post")
+					input(type="hidden" name="postID" value=post.id)
+					input(type="text" id="editformtitle" name="postTitle" value=post.title)
 					br
-					textarea(id="addformbody" name="postBody" placeholder="Enter your blog post here!")
+					textarea(id="editformbody" name="postBody")= post.body
 					br
-					button(type="submit" id="submitPost") Submit your post
+					button(type="submit" id="editPost") Edit your post
 			
 		
 		div(id="footer")
