@@ -232,9 +232,34 @@
 /* Manage Users - manageusers.jade*/
 
 #adduserform{
+	display: inline-block;
+	vertical-align: top;
 	padding: 0px 50px 10px 50px;
 }
 
 #manageusers{
-	padding: 0px 50px 10px 50px;
+	display: inline-block;
+	width: 30%;
+	padding: 0px 0px 10px 50px;
+}
+
+.manageuser{
+	display: inline-block;
+	width: 100%;
+	padding: 5px 0px 5px 0px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.usernamemanage{
+	font-size: 14pt;
+	text-decoration: none;
+	color: black;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+.removeuser a{
+	width: 100%;
+	font-size: 8pt;
+	text-decoration: none;
+	color: red;
 }

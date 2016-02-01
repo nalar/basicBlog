@@ -9,6 +9,15 @@ html
 				h1 Welcome to a NYCDBxBSSA basic blog
 	
 		div(id="main")
+			
+			div(id="manageusers")
+				h2 Here you can manage the users
+				each user in allUsers
+					div(class="manageuser")
+						div(class="usernamemanage")= user.name + " " + user.email
+						div(class="removeuser")
+							a(href="/removeuser/"+user.userID) X Remove User
+
 			div(id="adduserform")
 				h2 Add a new user
 				form(name="addUser" action="/adduser" method="post")
@@ -19,15 +28,6 @@ html
 					input(type="text" name="userEmail" style="width: 350px;" placeholder="Email")
 					br
 					button(type="submit" id="submitPost" style="width: 350px;") Add new user
-			
-			div(id="manageusers")
-				h2 Here you can manage the users
-				ul
-					each user in allUsers
-						div(style="font-size: 14pt; font-weight: bold;")= user.name + " " + user.email
-						a(href="/removeuser/"+user.userID)
-							div xxx Remove this user
-						br
 		
 		div(id="footer")
 			

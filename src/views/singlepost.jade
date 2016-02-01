@@ -29,7 +29,7 @@ html
 					h3 Add a comment
 					form(name="newComment" action="/addcomment" method="post")
 						input(type="hidden" name="commentPostID" value=postID)
-						input(type="text" name="commentAuthor" style="width: 100%;" placeholder="Author")
+						input(type="hidden" name="commentAuthor" style="width: 100%;" value=user)
 						br
 						input(type="text" name="commentBody" style="width: 100%;" placeholder="Comment")
 						br
