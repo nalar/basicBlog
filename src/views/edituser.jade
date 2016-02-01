@@ -1,26 +1,26 @@
 doctype
 html
 	head
-		title Edit Post - NYCDBxBSSA Basic Blog
+		title Edit User - NYCDBxBSSA Basic Blog
 		link(rel='stylesheet' href='/css/basicBlog.css')
 	body
-
 		div(id="header")
 			a(href="/")
 				h1 Welcome to a NYCDBxBSSA basic blog
 	
 		div(id="main")
 
-			div(id="editpostform")
-				h2 Edit your post
-				form(name="editPost" action="/editpost" method="post")
-					input(type="hidden" name="postID" value=post.id)
-					input(type="text" id="editformtitle" name="postTitle" value=post.title)
-					br
-					textarea(id="editformbody" name="postBody")= post.body
-					br
-					button(type="submit" id="editPost") Edit your post
-			
+			div(id="edituserform")
+				h2 Edit user
+				form(name="editUser" action="/edituser" method="post")
+					input(type="hidden" name="userID" value=usertoedit.id)
+					div username
+					input(type="text" name="userName" value=usertoedit.name)
+					div password
+					input(type="password" name="userPassword" value=usertoedit.password)
+					div email
+					input(type="text" name="userEmail" value=usertoedit.email)
+					button(type="submit" id="submitPost") Edit user
 		
 		div(id="footer")
 			

@@ -233,7 +233,8 @@
 
 #editpostform{
 	display: inline-block;
-	width: 65%;
+	text-align: center;
+	width: 90%;
 	padding: 0px 50px 10px 50px;
 	vertical-align: top;
 }
@@ -246,7 +247,7 @@
 }
 
 #editformbody{
-	width: 100%;
+	width: 90%;
 	height: 300px;
 }
 
@@ -282,7 +283,7 @@
 	border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
 
-.usernamemanage{
+.usernamemanage a{
 	font-size: 14pt;
 	text-decoration: none;
 	color: black;
@@ -294,4 +295,26 @@
 	font-size: 8pt;
 	text-decoration: none;
 	color: red;
+}
+
+/* Edit User - edituser.jade */
+
+#edituserform{
+	display: inline-block;
+	text-align: center;
+	font-size: 14pt;
+	width: 90%;
+	padding: 0px 50px 10px 50px;
+	vertical-align: top;
+}
+
+#edituserform input{
+	width: 90%;
+	font-size: 14pt;
+	margin-bottom: 10px;
+}
+
+#edituserform button{
+	width: 90%;
+	font-size: 14pt;
 }

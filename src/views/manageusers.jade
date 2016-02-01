@@ -14,7 +14,8 @@ html
 				h2 Here you can manage the users
 				each user in allUsers
 					div(class="manageuser")
-						div(class="usernamemanage")= user.name + " " + user.email
+						div(class="usernamemanage")
+							a(href="/edituser/"+user.userID)=user.name
 						div(class="removeuser")
 							a(href="/removeuser/"+user.userID) X Remove User
 

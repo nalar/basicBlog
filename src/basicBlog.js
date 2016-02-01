@@ -187,11 +187,28 @@ app.get('/editpost/:postid', function(request, response) {
                     userid: request.session.userid
                 })
             } else {
-                response.render('manageposts')
+                response.redict('/manageposts')
             }
         })
     } else {
-        response.redirect('index')
+        response.redirect('/manageposts')
+    }
+});
+
+app.get('/edituser/:userid', function(request, response) {
+    if (request.session.userid != undefined) {
+        User.findById(request.params.userid).then(function(usertoedit) {
+            if (request.session.userid === usertoedit.id) {
+                response.render('edituser', {
+                    usertoedit: usertoedit,
+                    user: request.session.username
+                })
+            } else {
+                response.redirect('/manageusers')
+            }
+        })
+    } else {
+        response.redirect('/manageusers')
     }
 });
 
@@ -263,23 +280,29 @@ app.get('/removeuser/:deleteid', function(request, response) {
 });
 
 ///////////////////////////////////////////////////////////////
-// These dont work yet
+// Edit posts and users
 app.post('/editpost/', function(request, response) {
     Post.findById(request.body.postID).then(function(post) {
-            if (post.author === request.session.userid) {
-                post.updateAttributes({
-                        title: request.body.postTitle,
-                        body: request.body.postBody,
-                        author: request.session.userid
+            post.updateAttributes({
+                title: request.body.postTitle,
+                body: request.body.postBody,
+                author: request.session.userid
             }).then(
-                response.redirect('/singlepost/'+request.body.postID)
+                response.redirect('/singlepost/' + request.body.postID)
             )
-        }
     })
 });
 
-app.get('/edituser/:userid', function(request, response) {
-    var deleteID = request.params.userid;
+app.post('/edituser/', function(request, response) {
+    User.findById(request.body.userID).then(function(usertoedit) {
+            usertoedit.updateAttributes({
+                name: request.body.userName,
+                password: request.body.userPassword,
+                email: request.body.userEmail
+            }).then(
+                response.redirect('/manageusers')
+            )
+    })
 });
 
 ///////////////////////////////////////////////////////////////
