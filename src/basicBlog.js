@@ -283,25 +283,25 @@ app.get('/removeuser/:deleteid', function(request, response) {
 // Edit posts and users
 app.post('/editpost/', function(request, response) {
     Post.findById(request.body.postID).then(function(post) {
-            post.updateAttributes({
-                title: request.body.postTitle,
-                body: request.body.postBody,
-                author: request.session.userid
-            }).then(
-                response.redirect('/singlepost/' + request.body.postID)
-            )
+        post.updateAttributes({
+            title: request.body.postTitle,
+            body: request.body.postBody,
+            author: request.session.userid
+        }).then(
+            response.redirect('/singlepost/' + request.body.postID)
+        )
     })
 });
 
 app.post('/edituser/', function(request, response) {
     User.findById(request.body.userID).then(function(usertoedit) {
-            usertoedit.updateAttributes({
-                name: request.body.userName,
-                password: request.body.userPassword,
-                email: request.body.userEmail
-            }).then(
-                response.redirect('/manageusers')
-            )
+        usertoedit.updateAttributes({
+            name: request.body.userName,
+            password: request.body.userPassword,
+            email: request.body.userEmail
+        }).then(
+            response.redirect('/manageusers')
+        )
     })
 });
 
