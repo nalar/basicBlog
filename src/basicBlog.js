@@ -8,6 +8,7 @@ var sequelize = require('sequelize');
 var jade = require('jade');
 var pg = require('pg');
 var bodyParser = require('body-parser');
+var bcrypt = require('bcrypt');
 
 ///////////////////////////////////////////////////////////////
 // Settings for express
@@ -308,21 +309,22 @@ app.post('/edituser/', function(request, response) {
 ///////////////////////////////////////////////////////////////
 // Define the POST routes
 app.post('/login', function(request, response) {
-    User.findAll({
+    User.findOne({
         where: {
             name: request.body.username
         }
-    }).then(function(userData) {
-        if (userData[0].password === request.body.userpass) {
-            request.session.lastPage = 'login';
-            request.session.userid = userData[0].id;
-            request.session.username = userData[0].name;
-            console.log('Succesfully logged in as: ' + userData[0].name);
-            response.redirect('/')
-        } else {
-            console.log('Invalid password')
-            response.redirect('/')
-        }
+    }).then(function(user) {
+        if(user != null){
+                bcrypt.compare(user.password, request.body.userpass, function(err, res) {
+                    request.session.lastPage = 'login';
+                    request.session.userid = user.id;
+                    request.session.username = user.name;
+                    console.log('Succesfully logged in as: ' + user.name);
+                    response.redirect('/')
+                })
+            } else{
+                response.send('Unknown username or invalid password!')
+            }
     })
 })
 
@@ -357,17 +359,19 @@ app.post('/adduser', function(request, response) {
 
     // Define the several variables that make up the user
     userName = request.body.userName;
-    userPassword = request.body.userPassword;
     userEmail = request.body.userEmail;
 
-    // Create the user
-    User.create({
-        name: userName,
-        password: userPassword,
-        email: userEmail
-    }).then(function() {
-        response.redirect('/manageusers');
-    });
+    bcrypt.hash(request.body.userPassword, 8, function(err, hash) {
+        userPassword = hash;
+        // Create the user
+        User.create({
+            name: userName,
+            password: userPassword,
+            email: userEmail
+        }).then(function() {
+            response.redirect('/manageusers');
+        });
+    })
 });
 
 app.post('/addcomment', function(request, response) {
