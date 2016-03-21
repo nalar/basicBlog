@@ -9,10 +9,18 @@ var jade = require('jade');
 var pg = require('pg');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
+var sassMiddleware = require('node-sass-middleware');
+var path = require('path');
 
 ///////////////////////////////////////////////////////////////
 // Settings for express
 app = express();
+app.use(sassMiddleware({
+  src: './src/sass',
+  dest: './src/views',
+  debug: true,
+  outputStyle: 'compressed'
+}));
 app.use(bodyParser.urlencoded({
     extended: true
 }));

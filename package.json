@@ -10,6 +10,9 @@
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "jade": "^1.11.0",
+    "node-sass": "^3.4.2",
+    "node-sass-middleware": "^0.9.7",
+    "path": "^0.12.7",
     "pg": "^4.4.4",
     "sequelize": "^3.18.0"
   }
